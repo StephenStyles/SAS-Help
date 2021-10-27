@@ -9,7 +9,7 @@ support.sas.com/content/dam/SAS/support/en/books/pro-template-made-easy-a-guide-
 
 /* How to graph dataset where you want to create multiple bars for each row */
 
-data bar_example;
+data bar_example_1;
 	length Province $25;
 	infile datalines missover;
 	input Province $ var1  var2  var3 ;
@@ -26,17 +26,17 @@ three Saskatchewan rows.
 */
 
 data transpose;
-	set bar_example;
+	set bar_example_1;
 	/* array colValues{*} then we list variables of interest */
 	array colValues{*} var1 var2 var3;
 	do i=1 to dim(colValues);
 		xValue = vname(colValues{i});
 		/* groupValue = Row id */
 		groupValue = Province;
-		val = colValues{i};
+		value  = colValues{i};
 		output;
 	end;
-	keep xValue groupValue val;
+	keep xValue groupValue value;
 run;
 
 
@@ -47,17 +47,30 @@ pattern2 color=VIGB;
 pattern3 color=LIBG;
 title1  "Bar Chart Example 1";
 
-/* If we wish to force the order of the variables being charted we can add
-the order = () line to the corresponding axis */
+/* If we wish to force the order of hierarchical variables being charted we can add
+the order = () line to the corresponding axis, however with this example that is not
+the case and will be chart alphabetically */
 axis1 label = ( f='Arial/Bold' 'Scale');
 axis2 label = ( f='Arial/Bold' 'Variables');
+axis3 label = ( f='Arial/Bold' 'Groups');
 
 proc gchart data= transpose;
-	hbar xValue / group = groupValue sumvar = val
-	coutline=black
+	/* Horizontal bar = hbar
+	   Vertical bar = vbar */
+	hbar xValue / group = groupValue sumvar = value
+	/* Creates a color outline/border around the bar with a set width */
+	coutline=red
+	woutline=1
+	/* The pattern which sas uses to rotate colors, can use (by, group, midpoint, subgroup) */
 	patternID = midpoint
+	/* Shows the value outside or inside the bar */
 	outside=sum
+	/* Width of bar
+	width= */
+	/* Space between bars in same group */
 	space=0.1
-	raxis = axis1 maxis=axis2;
+	/* Space between groups
+	gspace= */
+	raxis = axis1 maxis=axis2 gaxis=axis3;
 run;
 
