@@ -74,3 +74,60 @@ proc gchart data= transpose;
 	raxis = axis1 maxis=axis2 gaxis=axis3;
 run;
 
+/* This next example will be dealing with a more traditional dataset but we will be adding in subgroups */
+data bar_example_2;
+	length Department $25;
+	length Subject $25;
+	infile datalines missover;
+	input Department $ Building $  Students ;
+	datalines;
+	Arts B1 12
+	Arts B2 25
+	Arts B3 7
+	Sciences B1 20
+	Sciences B2 18
+	Sciences B3 10
+	Engineering B1 5
+	Engineering B2 10
+	Engineering B3 19
+	;
+run;
+
+pattern1 color = PALG;
+pattern2 color = VLIV;
+pattern3 color = BIOY;
+
+legend1
+	across=1 shape = bar(3,2)
+	label = ("Building" position=(top center))
+	cborder=black position=(top outside right)
+	offset = (-7,-7);
+
+axis1 label = ( f='Arial/Bold' 'Scale');
+axis2 label = ( f='Arial/Bold' 'Variables');
+
+title1 "Number of Students in Each Department";
+title2 "Subgroup of Building";
+
+proc gchart data=bar_example_2;
+ 	vbar Department / width = 10 sumvar=Students 
+	legend = legend1 subgroup=Building
+	outside=SUM inside = Sum
+	raxis=axis1 maxis=axis2
+	coutline=black woutline=2;
+run;
+
+legend2
+	across=1 shape = bar(3,2)
+	label = ("Building" position=(left) j=c)
+	cborder=black position=(top inside left)
+	;
+
+proc gchart data=bar_example_2;
+ 	vbar Building / width = 10 sumvar=Students
+	legend = legend2 group = Department subgroup=Building
+	outside=SUM
+	raxis=axis1 maxis=axis2
+	coutline=black woutline=2;
+run;
+
